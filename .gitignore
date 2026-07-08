@@ -9,6 +9,7 @@ __pycache__/
 .venv
 env/
 venv/
+.conda/
 
 # Terraform system files
 .terraform/

@@ -1,0 +1,12 @@
+name: air-quality
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.13
+  - six
+  - httpx
+  - boto3
+  - pytest-mock
+  - polars
+  - pytest
