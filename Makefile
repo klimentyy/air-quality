@@ -3,7 +3,7 @@
 setup:
 	@echo "Creating conda environment from environment.yml..."
 	conda env create -f environment.yml
-	@echo "Setup complete! Run 'conda activate cz-air-pipeline' to start."
+	@echo "Setup complete! Run 'conda activate air-quality' to start."
 
 update:
 	@echo "Updating conda environment..."
@@ -11,8 +11,8 @@ update:
 
 test:
 	@echo "Running pytest suite..."
-	conda run -n cz-air-pipeline pytest tests/
+	conda run -n air-quality pytest tests/
 
 clean:
 	@echo "Removing conda environment..."
-	conda env remove -n cz-air-pipeline
+	conda env remove -n air-quality

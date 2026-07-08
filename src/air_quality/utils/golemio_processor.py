@@ -20,8 +20,8 @@ def process_air_quality_data(raw_json: Dict[str, Any]) -> pl.DataFrame:
 
     df_flat = df_raw.select(
         [
-            pl.col("geometry").struct.field("coordinates").get(0).alias("longitude"),
-            pl.col("geometry").struct.field("coordinates").get(1).alias("latitude"),
+            pl.col("geometry").struct.field("coordinates").list.get(0).alias("longitude"),
+            pl.col("geometry").struct.field("coordinates").list.get(1).alias("latitude"),
             pl.col("properties").struct.field("id").alias("station_id"),
             pl.col("properties").struct.field("name").alias("station_name"),
             pl.col("properties").struct.field("district").alias("district"),
