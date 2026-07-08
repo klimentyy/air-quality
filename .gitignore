@@ -17,3 +17,7 @@ venv/
 *.tfstate.backup
 *.tfvars
 *.tfvars.json
+
+#Build artifacts
+dist/*
+lambda_function.zip
