@@ -1,0 +1,18 @@
+# Python compiler files and cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Environments (Conda / Mamba)
+.env
+.venv
+env/
+venv/
+
+# Terraform system files
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+*.tfvars.json
