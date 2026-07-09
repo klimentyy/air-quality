@@ -68,7 +68,7 @@ jobs:
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "1.5.8"
+          terraform_version: ">= 1.5.8"
 
       - name: Terraform Init and Apply
         env:
