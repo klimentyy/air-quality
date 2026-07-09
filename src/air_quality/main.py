@@ -30,6 +30,7 @@ def main(event=None, context=None):
     # Load dotenv for local development only
     try:
         from dotenv import load_dotenv
+
         load_dotenv()
     except ImportError:
         pass

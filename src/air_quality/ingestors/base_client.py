@@ -1,8 +1,6 @@
-
 from abc import ABC, abstractmethod
 from typing import Optional
 from polars.dataframe import DataFrame
-
 
 
 class BaseAirQualityClient(ABC):
@@ -11,5 +9,4 @@ class BaseAirQualityClient(ABC):
 
     @abstractmethod
     def get_cleaned_data(self, limit: Optional[int] = None) -> DataFrame:
-           pass
-
+        pass
