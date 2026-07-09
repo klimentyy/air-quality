@@ -1,4 +1,4 @@
-.PHONY: setup update clean test build
+.PHONY: setup update clean test lint build 
 
 setup:
 	@echo "Creating conda environment from environment.yml..."
@@ -12,6 +12,10 @@ update:
 test:
 	@echo "Running pytest suite..."
 	conda run -n air-quality pytest tests/
+
+lint:
+	@echo "Running Ruff linter..."
+	conda run -n air-quality ruff check src/
 
 clean:
 	@echo "Removing conda environment..."
