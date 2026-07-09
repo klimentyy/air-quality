@@ -16,19 +16,18 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.13"
+          cache: pip
 
-      - name: Install Conda environment and dependencies
+      - name: Install test dependencies
         run: |
-          echo "Creating environment..."
-          make setup
+          python -m pip install --upgrade pip
+          pip install -r requirements-test.txt
 
       - name: Lint code with Ruff
-        run: |
-          make lint
+        run: ruff check src/
 
       - name: Run pytest suite
-        run: |
-          make test
+        run: pytest tests/
 
   build:
     runs-on: ubuntu-latest

@@ -12,3 +12,4 @@ dependencies:
   - pytest
   - python-dotenv
   - ruff
+  - pip-tools

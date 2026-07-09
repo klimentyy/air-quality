@@ -1,4 +1,4 @@
-.PHONY: setup update clean test lint build 
+.PHONY: setup update clean test lint build compile
 
 setup:
 	@echo "Creating conda environment from environment.yml..."
@@ -38,3 +38,8 @@ build:
 	rm -rf python
 
 	@echo "Build complete: code_function.zip and python_layer.zip are ready."
+
+compile:
+	@echo "Compiling minimal production/test dependencies..."
+	conda run -n air-quality pip-compile src/requirements.in --output-file=src/requirements.txt
+	conda run -n air-quality pip-compile src/requirements-test.in --output-file=src/requirements-test.txt
