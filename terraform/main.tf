@@ -75,12 +75,22 @@ resource "aws_iam_role_policy" "lambda_execution_role" {
     })
 }
 
-resource "aws_lambda_layer_version" "lib_layer" {
-    filename = "${path.module}/../python_layer.zip"
-    layer_name = "air_quality_dependencies"
-    compatible_runtimes = [ "python3.13" ]
+resource "aws_s3_object" "lambda_layer_zip" {
+  bucket      = aws_s3_bucket.data_lake.id
+  key         = "layers/python_layer.zip"
+  source      = "${path.module}/../python_layer.zip"
+  
+  source_hash = filemd5("${path.module}/../python_layer.zip")
+}
 
-    source_code_hash = filemd5("${path.module}/../python_layer.zip")
+resource "aws_lambda_layer_version" "lib_layer" {
+  layer_name          = "air_quality_dependencies"
+  compatible_runtimes = ["python3.13"]
+
+  s3_bucket           = aws_s3_bucket.data_lake.id
+  s3_key              = aws_s3_object.lambda_layer_zip.key
+  
+  source_code_hash    = aws_s3_object.lambda_layer_zip.source_hash
 }
 
 data "archive_file" "code_zip" {
@@ -101,13 +111,11 @@ resource "aws_lambda_function" "air_quality_etl" {
 
     environment {
         variables = {
-        GOLEMIO_API_TOKEN = var.golemio_api_token
+          GOLEMIO_API_TOKEN = var.golemio_api_token
         }
     }
 
     source_code_hash = data.archive_file.code_zip.output_base64sha256
-
-  
 }
 
 resource "aws_cloudwatch_event_rule" "air_quality_hourly_cron" {
@@ -129,3 +137,4 @@ resource "aws_lambda_permission" "allow_eventbridge_to_invoke_lambda" {
   principal = "events.amazonaws.com"
   source_arn = aws_cloudwatch_event_rule.air_quality_hourly_cron.arn
 }
+
