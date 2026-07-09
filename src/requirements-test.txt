@@ -35,8 +35,10 @@ pip-tools==7.5.3
     # via -r src/requirements-test.in
 pluggy==1.6.0
     # via pytest
-polars==0.20.0
+polars==1.42.1
     # via -r src/requirements.in
+polars-runtime-32==1.42.1
+    # via polars
 pygments==2.20.0
     # via pytest
 pyproject-hooks==1.2.0
