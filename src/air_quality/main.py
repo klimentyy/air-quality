@@ -1,4 +1,7 @@
+import io
 import logging
+import os
+import boto3
 
 from air_quality.ingestors.base_client import BaseAirQualityClient
 from air_quality.ingestors.golemio_client import GolemioClient
@@ -16,9 +19,22 @@ def run_pipeline(
     try:
         flat_df = client.get_cleaned_data()
 
-        if not flat_df.is_empty():
-            flat_df.write_parquet(output_path)
-            logger.info(f"Data successfully stored to {output_path}")
+        if flat_df.height > 0:
+            buffer = io.BytesIO()
+            flat_df.write_parquet(buffer)
+            buffer.seek(0)
+
+            s3_client = boto3.client("s3")
+
+            bucket_name = os.environ.get(
+                "DATA_HEALTH_BUCKET_NAME", "air-quality-project-data-lake-klimentyyy"
+            )
+            s3_key = "extracted/air_quality_latest.parquet"
+
+            s3_client.upload_fileobj(buffer, bucket_name, s3_key)
+            logger.info(
+                f"Data successfully streamed directly to S3://{bucket_name}/{s3_key}"
+            )
         else:
             logger.warning("Generated DataFrame is empty")
     except Exception as e:
