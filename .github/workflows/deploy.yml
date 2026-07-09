@@ -47,8 +47,8 @@ jobs:
         with:
           name: lambda-packages
           path: |
-            code-functions.zip
-            python-layer.zip
+            code_function.zip
+            python_layer.zip
           retention-days: 1
 
   deploy:
@@ -59,10 +59,10 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Download build artefacts
+      - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: lambda-package
+          name: lambda-packages
           path: .
 
       - name: Set up Terraform
