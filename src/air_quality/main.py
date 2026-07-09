@@ -1,7 +1,5 @@
 import logging
 
-from dotenv import load_dotenv
-
 from air_quality.ingestors.base_client import BaseAirQualityClient
 from air_quality.ingestors.golemio_client import GolemioClient
 
@@ -29,10 +27,16 @@ def run_pipeline(
 
 
 def main(event=None, context=None):
+    # Load dotenv for local development only
+    try:
+        from dotenv import load_dotenv
+        load_dotenv()
+    except ImportError:
+        pass
+
     current_strategy = GolemioClient()
     run_pipeline(client=current_strategy)
 
 
 if __name__ == "__main__":
-    load_dotenv()
     main()
