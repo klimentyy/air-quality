@@ -6,6 +6,11 @@ terraform {
             version = "~> 5.0"
         }
     }
+    backend "s3" {
+      bucket = "air-quality-project-data-lake-klimentyyy" 
+      key    = "state/terraform.tfstate"                
+      region = "eu-north-1"
+  }
 }
 provider "aws" {
     region = var.aws_region
