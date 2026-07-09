@@ -27,7 +27,7 @@ jobs:
         run: ruff check src/
 
       - name: Run pytest suite
-        run: pytest tests/
+        run: pytest -o pythonpath=src tests/
 
   build:
     runs-on: ubuntu-latest

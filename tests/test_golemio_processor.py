@@ -1,6 +1,6 @@
 import pytest
 import polars as pl
-from src.air_quality.utils.golemio_processor import process_air_quality_data
+from air_quality.utils.golemio_processor import process_air_quality_data
 
 @pytest.fixture
 def sample_golemio_json():

@@ -11,7 +11,7 @@ update:
 
 test:
 	@echo "Running pytest suite..."
-	conda run -n air-quality pytest tests/
+	pytest -o pythonpath=src tests/
 
 lint:
 	@echo "Running Ruff linter..."

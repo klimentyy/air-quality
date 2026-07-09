@@ -7,7 +7,7 @@ from typing import Any, Optional
 import httpx
 from polars.dataframe import DataFrame
 from air_quality.utils.golemio_processor import process_air_quality_data
-from src.air_quality.ingestors.base_client import BaseAirQualityClient
+from air_quality.ingestors.base_client import BaseAirQualityClient
 
 logger = logging.getLogger(__name__)
 
