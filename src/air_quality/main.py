@@ -16,7 +16,7 @@ def run_pipeline(
     try:
         flat_df = client.get_cleaned_data()
 
-        if not flat_df.is_empty:
+        if not flat_df.is_empty():
             flat_df.write_parquet(output_path)
             logger.info(f"Data successfully stored to {output_path}")
         else:
