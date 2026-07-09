@@ -34,7 +34,12 @@ build:
 	@echo "Installing production dependencies layer ..."
 	mkdir python
 	pip install --no-dependencies --no-cache-dir -r src/requirements.txt -t python/
-	zip -r python_layer.zip python
+	
+	find python/ -type d -name "__pycache__" -exec rm -rf {} +
+	find python/ -type d -name "*.dist-info" -exec rm -rf {} +
+	find python/ -type d -name "*.egg-info" -exec rm -rf {} +
+
+	zip -9 -r python_layer.zip python
 	rm -rf python
 
 	@echo "Build complete: code_function.zip and python_layer.zip are ready."
