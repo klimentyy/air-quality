@@ -13,6 +13,7 @@ venv/
 
 # Terraform system files
 .terraform/
+terraform/.terraform.lock.hcl
 *.tfstate
 *.tfstate.backup
 *.tfvars
@@ -20,4 +21,5 @@ venv/
 
 #Build artifacts
 dist/*
-lambda_function.zip
+python_layer.zip
+code_function.zip
