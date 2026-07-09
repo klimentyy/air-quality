@@ -19,12 +19,18 @@ clean:
 
 build:
 	@echo "Cleaning up old builds..."
-	rm -rf dist lambda_function.zip
+	rm -rf dist python code_function.zip python_layer.zip
+	
+	@echo "Preparing Code package..."
 	mkdir -p dist
-	@echo "Installing production dependencies into dist folder..."
-	pip install --no-dependencies --no-cache-dir -r src/requirements.txt -t dist/
-	@echo "Copying source code..."
-	cp -r src/air_quality dist/
-	@echo "Creating deployment package..."
-	cd dist && zip -r ../lambda_function.zip .
-	@echo "Build complete: lambda_function.zip is ready for AWS."
+	cp -r src/air_quality/ dist/
+	cd dist && zip -r ../code_function.zip .
+	rm -rf dist
+
+	@echo "Installing production dependencies layer ..."
+	mkdir python
+	pip install --no-dependencies --no-cache-dir -r src/requirements.txt -t python/
+	zip -r python_layer.zip python
+	rm -rf python
+
+	@echo "Build complete: code_function.zip and python_layer.zip are ready."

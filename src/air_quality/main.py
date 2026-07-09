@@ -5,10 +5,15 @@ from dotenv import load_dotenv
 from air_quality.ingestors.base_client import BaseAirQualityClient
 from air_quality.ingestors.golemio_client import GolemioClient
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
-def run_pipeline(client: BaseAirQualityClient, output_path: str ="air_quality_latest.parquet") -> None:
+
+def run_pipeline(
+    client: BaseAirQualityClient, output_path: str = "air_quality_latest.parquet"
+) -> None:
     """Runs ETL cycle utilizing the passed extraction strategy"""
     try:
         flat_df = client.get_cleaned_data()
@@ -22,14 +27,12 @@ def run_pipeline(client: BaseAirQualityClient, output_path: str ="air_quality_la
         logger.critical(f"Pipeline broke down: {e}")
         raise
 
-def main():
-    current_strategy = GolemioClient()
 
+def main(event=None, context=None):
+    current_strategy = GolemioClient()
     run_pipeline(client=current_strategy)
-    
 
 
 if __name__ == "__main__":
     load_dotenv()
-
     main()
