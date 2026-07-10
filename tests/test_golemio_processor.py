@@ -37,7 +37,7 @@ def sample_golemio_json():
     }
 
 def test_process_air_quality_data_success(sample_golemio_json):
-    # Act
+    """Test the process_air_quality_data function with a valid Golemio JSON input."""
     result_df = process_air_quality_data(sample_golemio_json)
     
     # Assert
@@ -59,6 +59,7 @@ def test_process_air_quality_data_success(sample_golemio_json):
     assert result_df["PM10"].dtype == pl.Float64
 
 def test_process_air_quality_data_empty():
+    """Test the process_air_quality_data function with an empty Golemio JSON input."""
     empty_json = {"features": []}
     result_df = process_air_quality_data(empty_json)
     

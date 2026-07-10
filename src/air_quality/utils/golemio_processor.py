@@ -20,7 +20,7 @@ def process_air_quality_data(raw_json: dict[str, Any]) -> pl.DataFrame:
         ]
     )
 
-    df_exploded = df_flat.explode("components")
+    df_exploded = df_flat.explode("components", empty_as_null=True)
     
     df_final = df_exploded.select([
         "station_id",
