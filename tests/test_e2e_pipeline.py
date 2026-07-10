@@ -54,7 +54,7 @@ def test_pipeline_e2e_lambda_s3_flow(mock_http_get, mock_golemio_geojson):
         "ALLOW_LOCAL_CLOUD_WRITE": "false"
     }
 
-    with patch.dict(os.environ, env_mock, clear=True):
+    with patch.dict(os.environ, env_mock):
         AppConfig.ENV = os.environ["ENV"].lower()
         AppConfig.IS_LAMBDA = True
         AppConfig.ALLOW_CLOUD_WRITE = True

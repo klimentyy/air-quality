@@ -35,7 +35,7 @@ jobs:
       - name: Run E2E Pipeline Tests
         run: |
           export PYTHONPATH=src
-          pytest tests/test_e2e_pipeline.py -v
+          uv run pytest tests/test_e2e_pipeline.py -v
 
       - name: Run pytest suite
         run: uv run pytest -o pythonpath=src tests/
