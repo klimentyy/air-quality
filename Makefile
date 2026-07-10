@@ -1,25 +1,26 @@
 .PHONY: setup update clean test lint build compile
 
 setup:
-	@echo "Creating conda environment from environment.yml..."
-	conda env create -f environment.yml
-	@echo "Setup complete! Run 'conda activate air-quality' to start."
+	@echo "Syncing uv virtual environment..."
+	uv sync
+	@echo "Setup complete! Run 'source .venv/bin/activate' to start."
 
 update:
-	@echo "Updating conda environment..."
-	conda env update -f environment.yml --prune
+	@echo "Updating uv virtual environment..."
+	uv sync
 
 test:
 	@echo "Running pytest suite..."
-	pytest -o pythonpath=src tests/
+	uv run pytest -o pythonpath=src tests/
 
 lint:
 	@echo "Running Ruff linter..."
-	conda run -n air-quality ruff check src/
+	uv run ruff check src/
 
 clean:
-	@echo "Removing conda environment..."
-	conda env remove -n air-quality
+	@echo "Removing virtual environments..."
+	rm -rf .venv
+	rm -rf .conda
 
 build:
 	@echo "Cleaning up old builds..."
@@ -33,7 +34,9 @@ build:
 
 	@echo "Installing production dependencies layer ..."
 	mkdir python
-	pip install --no-dependencies --no-cache-dir -r src/requirements.txt -t python/
+	uv export --no-dev --no-hashes --format requirements-txt -o temp-requirements.txt
+	uv pip install --no-deps --no-cache-dir -r temp-requirements.txt -t python/
+	rm temp-requirements.txt
 	
 	find python/ -type d -name "__pycache__" -exec rm -rf {} +
 	find python/ -type d -name "*.dist-info" -exec rm -rf {} +
@@ -45,6 +48,5 @@ build:
 	@echo "Build complete: code_function.zip and python_layer.zip are ready."
 
 compile:
-	@echo "Compiling minimal production/test dependencies..."
-	conda run -n air-quality pip-compile src/requirements.in --output-file=src/requirements.txt
-	conda run -n air-quality pip-compile src/requirements-test.in --output-file=src/requirements-test.txt
+	@echo "Updating lockfile..."
+	uv lock

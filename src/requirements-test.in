@@ -1,5 +1,0 @@
--r requirements.in
-pytest
-pytest-mock
-ruff
-pip-tools
