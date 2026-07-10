@@ -39,12 +39,12 @@ def main(event=None, context=None):
     current_strategy = GolemioClient()
     if AppConfig.IS_LAMBDA or AppConfig.ALLOW_CLOUD_WRITE:
         writer = S3Writer()
-        target = "extracted/air_quality_latest.parquet"
+        target = AppConfig.S3_TARGET_KEY
     else:
         from air_quality.writers.writer import LocalFileWriter
 
         writer = LocalFileWriter()
-        target = "air_quality_latest.parquet"
+        target = AppConfig.LOCAL_TARGET_PATH
         
     run_pipeline(client=current_strategy, writer=writer, target=target)
 
