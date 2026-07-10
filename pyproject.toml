@@ -20,4 +20,4 @@ dev = [
 ]
 
 [project.scripts]
-air-quality = "air-quality.main:main"
+air-quality = "air_quality.main:main"

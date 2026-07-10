@@ -28,14 +28,6 @@ def run_pipeline(
 
 
 def main(event=None, context=None):
-    # Load dotenv for local development only
-    try:
-        from dotenv import load_dotenv
-
-        load_dotenv()
-    except ImportError:
-        pass
-    
     AppConfig.validate()
 
     current_strategy = GolemioClient()

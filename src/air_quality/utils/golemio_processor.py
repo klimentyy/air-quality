@@ -28,13 +28,16 @@ def process_air_quality_data(raw_json: dict[str, Any]) -> pl.DataFrame:
         "district",
         "longitude",
         "latitude",
-        pl.col("updated_at_raw").str.to_datetime(format="%Y-%m-%dT%H:%M:%S%.3fZ", strict=False).alias("updated_at"),
+        pl.col("updated_at_raw").str.to_datetime(time_zone="UTC", strict=False).alias("updated_at"),
         pl.col("components").struct.field("type").alias("component_type"),
         pl.col("components").struct.field("averaged_time").struct.field("value").cast(pl.Float64, strict=False).alias("component_value")
     ])
-    
-    return df_final.pivot(
-    on="component_type",
-    index=["station_id", "station_name", "district", "longitude", "latitude", "updated_at"],
-    values="component_value"
-)
+
+    return (
+        df_final.filter(pl.col("component_type").is_not_null())
+        .pivot(
+            on="component_type",
+            index=["station_id", "station_name", "district", "longitude", "latitude", "updated_at"],
+            values="component_value"
+        )
+    )
