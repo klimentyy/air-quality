@@ -4,7 +4,7 @@ import os
 class AppConfig:
     # Environment and safety flags
     ENV: str = os.environ.get("ENV", "dev").lower()
-    IS_LAMBDA: bool = os.environ.get("AWS_LAMBDA_FUNCTION") is not None
+    IS_LAMBDA: bool = os.environ.get("AWS_LAMBDA_FUNCTION_NAME") is not None
     ALLOW_CLOUD_WRITE: bool = IS_LAMBDA or (
         os.environ.get("ALLOW_LOCAL_CLOUD_WRITE", "false").lower() == "true"
     )
@@ -25,7 +25,7 @@ class AppConfig:
             raise ValueError(
                 "CRITICAL: GOLEMIO_API_TOKEN is missing in environment variables."
             )
-        if cls.ALLOW_CLOUD_WRITE or cls.ENV != "dev" and not cls.BUCKET_NAME:
+        if (cls.ALLOW_CLOUD_WRITE or cls.ENV != "dev") and not cls.BUCKET_NAME:
             raise ValueError(
                 "CRITICAL: BUCKET_NAME is missing in environment variables."
             )

@@ -155,3 +155,9 @@ resource "aws_lambda_permission" "allow_eventbridge_to_invoke_lambda" {
   source_arn = aws_cloudwatch_event_rule.air_quality_hourly_cron.arn
 }
 
+resource "aws_s3_bucket_versioning" "data_lake_versioning" {
+  bucket = aws_s3_bucket.data_lake.id
+  versioning_configuration {
+    status = var.environment == "prod" ? "Enabled" : "Disabled"
+  }
+}

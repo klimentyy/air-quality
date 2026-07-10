@@ -35,6 +35,8 @@ def main(event=None, context=None):
         load_dotenv()
     except ImportError:
         pass
+    
+    AppConfig.validate()
 
     current_strategy = GolemioClient()
     if AppConfig.IS_LAMBDA or AppConfig.ALLOW_CLOUD_WRITE:
