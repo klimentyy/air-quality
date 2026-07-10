@@ -1,7 +1,6 @@
-import io
 import logging
-import os
-import boto3
+from air_quality.config import AppConfig
+from air_quality.writers.writer import DataWriter, S3Writer
 
 from air_quality.ingestors.base_client import BaseAirQualityClient
 from air_quality.ingestors.golemio_client import GolemioClient
@@ -13,28 +12,14 @@ logger = logging.getLogger(__name__)
 
 
 def run_pipeline(
-    client: BaseAirQualityClient, output_path: str = "air_quality_latest.parquet"
+    client: BaseAirQualityClient, writer: DataWriter, target: str = "air_quality_latest.parquet"
 ) -> None:
     """Runs ETL cycle utilizing the passed extraction strategy"""
     try:
         flat_df = client.get_cleaned_data()
 
         if flat_df.height > 0:
-            buffer = io.BytesIO()
-            flat_df.write_parquet(buffer)
-            buffer.seek(0)
-
-            s3_client = boto3.client("s3")
-
-            bucket_name = os.environ.get(
-                "DATA_HEALTH_BUCKET_NAME", "air-quality-project-data-lake-klimentyyy"
-            )
-            s3_key = "extracted/air_quality_latest.parquet"
-
-            s3_client.upload_fileobj(buffer, bucket_name, s3_key)
-            logger.info(
-                f"Data successfully streamed directly to S3://{bucket_name}/{s3_key}"
-            )
+            writer.write(flat_df, target)
         else:
             logger.warning("Generated DataFrame is empty")
     except Exception as e:
@@ -52,7 +37,16 @@ def main(event=None, context=None):
         pass
 
     current_strategy = GolemioClient()
-    run_pipeline(client=current_strategy)
+    if AppConfig.IS_LAMBDA or AppConfig.ALLOW_CLOUD_WRITE:
+        writer = S3Writer()
+        target = "extracted/air_quality_latest.parquet"
+    else:
+        from air_quality.writers.writer import LocalFileWriter
+
+        writer = LocalFileWriter()
+        target = "air_quality_latest.parquet"
+        
+    run_pipeline(client=current_strategy, writer=writer, target=target)
 
 
 if __name__ == "__main__":
