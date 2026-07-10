@@ -7,13 +7,19 @@ terraform {
         }
     }
     backend "s3" {
-      bucket = "air-quality-project-data-lake-klimentyyy" 
+      bucket = "prague-air-quality-project-data-lake" 
       key    = "state/terraform.tfstate"                
       region = "eu-north-1"
   }
 }
 provider "aws" {
     region = var.aws_region
+}
+
+variable "environment" {
+  type    = string
+  description = "Deployment environment (dev or prod)"
+  default = "dev"
 }
 
 variable "aws_region" {
@@ -27,7 +33,8 @@ variable "golemio_api_token" {
 }
 
 resource "aws_s3_bucket" "data_lake" {
-    bucket = "air-quality-project-data-lake-klimentyyy"
+  bucket        = "prague-air-quality-project-data-lake-${var.environment}"
+  force_destroy = var.environment == "dev" ? true : false
 }
 
 resource "aws_iam_role" "lambda_execution_role" {
@@ -48,7 +55,7 @@ resource "aws_iam_role" "lambda_execution_role" {
 }
 
 resource "aws_iam_role_policy" "lambda_execution_role" {
-    name = "lambda_iam_role_policy"
+    name = "lambda_iam_role_policy_${var.environment}"
     role = aws_iam_role.lambda_execution_role.id
 
     policy = jsonencode({

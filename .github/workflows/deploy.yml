@@ -2,7 +2,9 @@ name: Air Quality ETL CI/CD Pipeline
 
 on:
   push:
-    branches: ["main", "feature/*"]
+    branches: 
+      - "main"
+      - "feature/*"
 
 jobs:
   test:
@@ -54,6 +56,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
 
+    environment: ${{ github.ref_name == 'main' && 'production' || 'development'}}
+
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
@@ -69,12 +73,27 @@ jobs:
         with:
           terraform_version: ">= 1.5.8"
 
-      - name: Terraform Init and Apply
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-north-1
+
+      - name: Terraform Init
+        run: |
+          cd terraform
+          terraform init -backend-config="key=state/${{ github.ref_name }}/terraform.tfstate" -reconfigure
+
+      - name: Terraform Validate
+        run: |
+          cd terraform
+          terraform validate
+
+      - name: Terraform Apply
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          TF_VAR_environment: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
           TF_VAR_golemio_api_token: ${{ secrets.GOLEMIO_API_TOKEN }}
         run: |
           cd terraform
-          terraform init
           terraform apply -auto-approve
