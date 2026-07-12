@@ -61,7 +61,7 @@ git clone <your-repo-url>
 cd air-quality
 
 # Sync dependencies and initialize the virtual environment (.venv)
-uv sync
+uv sync --all-groups
 
 # Activate the virtual environment (optional, as `uv run` handles execution)
 source .venv/bin/activate
