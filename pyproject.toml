@@ -10,6 +10,9 @@ dependencies = [
 ]
 
 [dependency-groups]
+dashboard = [
+    "streamlit>=1.59.1",
+]
 dev = [
     "pytest",
     "pytest-mock",
