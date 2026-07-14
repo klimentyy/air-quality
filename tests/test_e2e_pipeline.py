@@ -85,7 +85,7 @@ def test_pipeline_e2e_lambda_s3_flow(mock_http_get, mock_golemio_geojson):
         df_result = pl.read_parquet(io.BytesIO(parquet_bytes))
 
         assert df_result.height == 1
-        assert df_result.width == 8
+        assert df_result.width == 9
         assert "NO2" in df_result.columns
         assert "PM10" in df_result.columns
         assert df_result["station_name"][0] == "Praha 6-Břevnov"
@@ -123,6 +123,6 @@ def test_pipeline_e2e_local_file_flow(mock_http_get, mock_golemio_geojson, tmp_p
 
         df_local = pl.read_parquet(local_output_file)
         assert df_local.height == 1
-        assert df_local.width == 8
+        assert df_local.width == 9
         assert df_local["NO2"].to_list() == [6.6]
         assert df_local["PM10"].to_list() == [6.9]
