@@ -53,7 +53,7 @@ def get_s3_client() -> "S3Client":
     )
 
 
-@st.cache_data
+@st.cache_data(ttl=3600)
 def load_data_from_s3(
     bucket_name: Optional[str] = None, file_key: str = AppConfig.S3_TARGET_KEY
 ) -> pl.DataFrame:
