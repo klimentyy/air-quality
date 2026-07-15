@@ -20,6 +20,7 @@ dev = [
     "boto3",
     "python-dotenv",
     "moto",
+    "boto3-stubs[s3]>=1.43.48",
 ]
 
 [project.scripts]

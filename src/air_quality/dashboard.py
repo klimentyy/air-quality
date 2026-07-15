@@ -1,10 +1,16 @@
+import io
 from pathlib import Path
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
+import boto3
 import streamlit as st
 import polars as pl
 import pydeck as pdk
 import pandas as pd
+if TYPE_CHECKING:
+    from mypy_boto3_s3 import S3Client
+
+from air_quality.config import AppConfig
 
 STANDARD_COMPONENTS = [
     "station_id",
@@ -16,8 +22,42 @@ STANDARD_COMPONENTS = [
     "AQ_hourly_index",
 ]
 
+RGBA_COLORS = {
+    "green": [46, 204, 113, 200],
+    "yellow": [241, 196, 15, 200],
+    "red": [231, 76, 60, 200],
+    "grey": [149, 165, 166, 150],
+    "violet": [155, 89, 182, 160],
+}
+
+
 @st.cache_resource
-def load_data(file_path: Path) -> pl.DataFrame:
+def get_s3_resource():
+    """Initialize the S3 client using Streamlit Secrets."""
+    return boto3.client(
+        "s3",
+        aws_access_key_id=st.secrets["aws"]["aws_access_key_id"],
+        aws_secret_access_key=st.secrets["aws"]["aws_secret_access_key"],
+        region_name=st.secrets["aws"].get("aws_region"),
+    )
+
+
+def load_data_from_s3(
+    bucket_name: str = AppConfig.BUCKET_NAME, file_key: str = AppConfig.S3_TARGET_KEY
+) -> pl.DataFrame:
+    s3_client: "S3Client" = get_s3_resource()
+    try:
+        response = s3_client.get_object(Bucket=bucket_name, Key=file_key)
+        file_bytes = response["Body"].read()
+
+        return pl.read_parquet(io.BytesIO(file_bytes))
+    except Exception as e:
+        st.error(f"Failed to fetch data from S3: {e}")
+        raise e
+
+
+@st.cache_resource
+def load_data_locally(file_path: Path) -> pl.DataFrame:
     """Load data from a Parquet file."""
     if not file_path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
@@ -32,42 +72,61 @@ def add_visual_data_to_aq_index(data: pl.DataFrame) -> pl.DataFrame:
     color_lookup = pl.DataFrame(
         {
             "AQ_hourly_index": ["1A", "2A", "0"],
-            "color_r": [46, 242, 255],
-            "color_g": [204, 244, 55],
-            "color_b": [113, 54, 55],
+            "color_r": [
+                RGBA_COLORS["green"][0],
+                RGBA_COLORS["yellow"][0],
+                RGBA_COLORS["grey"][0],
+            ],
+            "color_g": [
+                RGBA_COLORS["green"][1],
+                RGBA_COLORS["yellow"][1],
+                RGBA_COLORS["grey"][1],
+            ],
+            "color_b": [
+                RGBA_COLORS["green"][2],
+                RGBA_COLORS["yellow"][2],
+                RGBA_COLORS["grey"][2],
+            ],
         }
     )
-    default = [255, 55, 55]
+    default = RGBA_COLORS["red"]
     return data.join(color_lookup, on="AQ_hourly_index", how="left").with_columns(
         [
             pl.col("color_r").fill_null(default[0]),
             pl.col("color_g").fill_null(default[1]),
             pl.col("color_b").fill_null(default[2]),
             pl.lit(255).alias("color_a"),
-            pl.lit(200).alias("radius")
+            pl.lit(200).alias("radius"),
         ]
     )
+
 
 def add_visual_data_to_gas(data: pl.DataFrame, gas: str) -> pl.DataFrame:
     MIN_RADIUS = 200
     MAX_RADIUS = 2000
-    default = [167, 88, 162, 150] # purple
+    default = RGBA_COLORS["violet"]
 
     gas_col = pl.col(gas)
     val_min = gas_col.min()
     val_max = gas_col.max()
     # Normalize the radius
-    radius_expr = pl.when(val_min == val_max).then(MIN_RADIUS).otherwise(
-            MIN_RADIUS + ((gas_col - val_min) / (val_max - val_min)) * (MAX_RADIUS - MIN_RADIUS)
+    radius_expr = (
+        pl.when(val_min == val_max)
+        .then(MIN_RADIUS)
+        .otherwise(
+            MIN_RADIUS
+            + ((gas_col - val_min) / (val_max - val_min)) * (MAX_RADIUS - MIN_RADIUS)
         )
+    )
 
     return data.with_columns(
-            pl.lit(default[0]).alias("color_r"),
-            pl.lit(default[1]).alias("color_g"),
-            pl.lit(default[2]).alias("color_b"),
-            pl.lit(default[3]).alias("color_a"),
-            radius_expr.alias("radius")
+        pl.lit(default[0]).alias("color_r"),
+        pl.lit(default[1]).alias("color_g"),
+        pl.lit(default[2]).alias("color_b"),
+        pl.lit(default[3]).alias("color_a"),
+        radius_expr.alias("radius"),
     )
+
 
 def create_dashboard(data: pl.DataFrame):
     """Create a Streamlit dashboard to visualize air quality data."""
@@ -76,9 +135,8 @@ def create_dashboard(data: pl.DataFrame):
     st.write("This dashboard visualizes air quality data.")
 
     DISTRICT_OPTIONS = sorted(data["district"].unique().to_list())
-
-    NONE_OPTION = "Overall Index"
     ALL_GASES = sorted(list(set(data.columns) - set(STANDARD_COMPONENTS)))
+    NONE_OPTION = "Overall Index"
 
     with st.sidebar:
         st.header("Filters")
@@ -104,8 +162,23 @@ def create_dashboard(data: pl.DataFrame):
         filtered_df = add_visual_data_to_aq_index(filtered_df)
 
     render_colormap(filtered_df)
-    st.subheader("Data Preview")
-    st.dataframe(filtered_df.head().to_pandas())
+    st.subheader("Station Data Overview")
+    visual_columns_to_exclude = [
+        "color_r",
+        "color_g",
+        "color_b",
+        "color_a",
+        "radius",
+        "latitude",
+        "longitude",
+    ]
+    preview_df = filtered_df.drop(
+        [col for col in visual_columns_to_exclude if col in filtered_df]
+    )
+
+    st.dataframe(
+        preview_df.head().to_pandas(), use_container_width=True, hide_index=True
+    )
 
 
 def render_colormap(data: pl.DataFrame, gas: Optional[str] = None) -> None:
@@ -142,8 +215,11 @@ def render_colormap(data: pl.DataFrame, gas: Optional[str] = None) -> None:
 
 def main():
     # Load data
-    file_path = Path("air_quality_latest.parquet")
-    data = load_data(file_path)
+    if AppConfig.IS_LAMBDA:
+        data = load_data_from_s3()
+    else:
+        file_path = Path(AppConfig.LOCAL_TARGET_PATH)
+        data = load_data_locally(file_path)
 
     # Create the dashboard
     create_dashboard(data)
