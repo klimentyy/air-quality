@@ -102,10 +102,8 @@ make lint
 
 ---
 
-## 📈 Dashboard & Insights (Coming Soon)
+## 📈 Dashboard
 
-*Placeholder: Real-time map rendering and time-series degradation analysis built on Streamlit.*
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://prague-air-quality.streamlit.app/)
 
-```
-
-```
+[![Prague Air Quality Dashboard](docs/images/streamlit_app.png)](https://prague-air-quality.streamlit.app/)
