@@ -1,4 +1,5 @@
 import io
+import sys
 from pathlib import Path
 from typing import Optional, TYPE_CHECKING
 
@@ -10,6 +11,10 @@ import pandas as pd
 if TYPE_CHECKING:
     from mypy_boto3_s3 import S3Client
 
+src_path = str(Path(__file__).resolve().parents[1])
+if src_path not in sys.path:
+    sys.path.insert(0, src_path)
+    
 from air_quality.config import AppConfig
 
 STANDARD_COMPONENTS = [
