@@ -35,7 +35,7 @@ RGBA_COLORS = {
 def get_s3_resource():
     """Initialize the S3 client using Streamlit Secrets."""
     return boto3.client(
-        "s3",
+        "s3",  # type: ignore[arg-type]
         aws_access_key_id=st.secrets["aws"]["aws_access_key_id"],
         aws_secret_access_key=st.secrets["aws"]["aws_secret_access_key"],
         region_name=st.secrets["aws"].get("aws_region"),
