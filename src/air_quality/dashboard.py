@@ -8,14 +8,15 @@ import streamlit as st
 import polars as pl
 import pydeck as pdk
 import pandas as pd
+
 if TYPE_CHECKING:
     from mypy_boto3_s3 import S3Client
 
 src_path = str(Path(__file__).resolve().parents[1])
 if src_path not in sys.path:
     sys.path.insert(0, src_path)
-    
-from air_quality.config import AppConfig
+
+from air_quality.config import AppConfig # noqa: E402
 
 STANDARD_COMPONENTS = [
     "station_id",
@@ -220,7 +221,7 @@ def render_colormap(data: pl.DataFrame, gas: Optional[str] = None) -> None:
 
 def main():
     # Load data
-    if AppConfig.IS_LAMBDA:
+    if "aws" in st.secrets and st.secrets["aws"].get("aws_access_key_id"):
         data = load_data_from_s3()
     else:
         file_path = Path(AppConfig.LOCAL_TARGET_PATH)
