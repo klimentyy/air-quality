@@ -61,7 +61,7 @@ git clone <your-repo-url>
 cd air-quality
 
 # Sync dependencies and initialize the virtual environment (.venv)
-uv sync
+uv sync --all-groups
 
 # Activate the virtual environment (optional, as `uv run` handles execution)
 source .venv/bin/activate
@@ -102,10 +102,8 @@ make lint
 
 ---
 
-## 📈 Dashboard & Insights (Coming Soon)
+## 📈 Dashboard
 
-*Placeholder: Real-time map rendering and time-series degradation analysis built on Streamlit.*
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://prague-air-quality.streamlit.app/)
 
-```
-
-```
+[![Prague Air Quality Dashboard](docs/images/streamlit_app.png)](https://prague-air-quality.streamlit.app/)
