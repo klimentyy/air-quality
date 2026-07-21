@@ -90,32 +90,31 @@ def load_data_locally(file_path: Path) -> pl.DataFrame:
 
 def add_visual_data_to_aq_index(data: pl.DataFrame) -> pl.DataFrame:
     """Add color and radius dimensions to the dataset based on the AQ Hourly Index."""
-    # Mapping table for Air Quality values to RGB values
+    # Map based ONLY on the first character
     aq_colors = {
-        "1A": RGBA_COLORS["green"][:3],  # Very Good
-        "2A": RGBA_COLORS["yellow"][:3],  # Moderate
-        "0": RGBA_COLORS["grey"][:3],  # Unknown
+        "1": RGBA_COLORS["green"][:3],  # Matches 1A, 1B, etc.
+        "2": RGBA_COLORS["yellow"][:3], # Matches 2A, 2B, etc.
+        "0": RGBA_COLORS["grey"][:3],   # Matches 0
     }
     default_color = RGBA_COLORS["red"][:3]
 
-    # Map AQ Index to colors natively using replace_strict()
+    # Isolate the first character of the index (e.g., "1A" -> "1")
+    prefix = pl.col("AQ_hourly_index").str.slice(0, 1)
+
     return data.with_columns(
         [
-            pl.col("AQ_hourly_index")
-            .replace_strict(
+            prefix.replace_strict(
                 {k: v[0] for k, v in aq_colors.items()}, default=default_color[0]
-            )
-            .alias("color_r"),
-            pl.col("AQ_hourly_index")
-            .replace_strict(
+            ).alias("color_r"),
+            
+            prefix.replace_strict(
                 {k: v[1] for k, v in aq_colors.items()}, default=default_color[1]
-            )
-            .alias("color_g"),
-            pl.col("AQ_hourly_index")
-            .replace_strict(
+            ).alias("color_g"),
+            
+            prefix.replace_strict(
                 {k: v[2] for k, v in aq_colors.items()}, default=default_color[2]
-            )
-            .alias("color_b"),
+            ).alias("color_b"),
+            
             pl.lit(255).alias("color_a"),
             pl.lit(200).alias("radius"),
         ]
