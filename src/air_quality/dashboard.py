@@ -92,9 +92,9 @@ def add_visual_data_to_aq_index(data: pl.DataFrame) -> pl.DataFrame:
     """Add color and radius dimensions to the dataset based on the AQ Hourly Index."""
     # Map based ONLY on the first character
     aq_colors = {
-        "1": RGBA_COLORS["green"][:3],  # Matches 1A, 1B, etc.
-        "2": RGBA_COLORS["yellow"][:3], # Matches 2A, 2B, etc.
-        "0": RGBA_COLORS["grey"][:3],   # Matches 0
+        "1": RGBA_COLORS["green"][:3],  # Very Good
+        "2": RGBA_COLORS["yellow"][:3], # Moderate
+        "0": RGBA_COLORS["grey"][:3],   # Unknown
     }
     default_color = RGBA_COLORS["red"][:3]
 
@@ -153,11 +153,11 @@ def add_visual_data_to_gas(data: pl.DataFrame, gas: str) -> pl.DataFrame:
 def get_aq_status(index: str) -> str:
     """Resolve an Air Quality Index code to a human-readable status with emojis."""
     status_map = {
-        "1A": "🟢 Very Good",
-        "2A": "🟡 Moderate",
+        "1": "🟢 Very Good",
+        "2": "🟡 Moderate",
         "0": "⚪ Unknown",
     }
-    return status_map.get(index, "🔴 Poor")
+    return status_map.get(index[:1], "🔴 Poor")
 
 
 def render_colormap(data: pl.DataFrame) -> None:
