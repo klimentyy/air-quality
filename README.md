@@ -104,6 +104,6 @@ make lint
 
 ## 📈 Dashboard
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://prague-air-quality.streamlit.app/)
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://air-quality-prg-test.streamlit.app/)
 
-[![Prague Air Quality Dashboard](docs/images/streamlit_app.png)](https://prague-air-quality.streamlit.app/)
+[![Prague Air Quality Dashboard](docs/images/streamlit_app.png)](https://air-quality-prg-test.streamlit.app/)
